@@ -4,7 +4,7 @@ const blogsSchema = new Schema(
   {
     title: { type: String },
     story: { type: String },
-    category: { type: String },
+    category: { type: String, lowercase: true },
     tags: { type: String },
     imagepost: String,
     author: { type: Schema.Types.ObjectId, ref: "User" }

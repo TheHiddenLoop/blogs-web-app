@@ -57,3 +57,72 @@ export async function readBlogs(req, res) {
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 }
+
+
+export const filterBlogs = async (req, res) => {
+  try {
+    const { search, category } = req.query;
+    let query = {};
+
+    if (search) {
+      query.title = { $regex: search, $options: "i" }; 
+    }
+
+    if (category && category.toLowerCase() !== "all") {
+      query.category = category.toLowerCase();
+    }
+
+    const blogs = await blogsModel
+      .find(query)
+      .populate("author", "-password -email");
+
+    res.json({
+      success: true,
+      message: blogs.length
+        ? "Filtered blogs fetched successfully"
+        : "No blogs found with given filters",
+      blogs,
+    });
+  } catch (error) {
+    console.error("Error in filterBlogs:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const userBlogs = async (req, res) => {
+  try {
+    const id = req.user._id;
+
+    const blogs = await blogsModel.find({ author: id }).populate("author", "-password -email -otp -otpExpires -resetPasswordToken -resetPasswordExpires -createdAt -updatedAt -isVerified ");
+
+    if (!blogs.length) {
+      return res.json({ success: false, message: "No blogs found for this user" });
+    }
+
+    res.json({ success: true, message: "User blogs fetched successfully", blogs });
+  } catch (error) {
+    console.error("Error in userBlogs:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+
+export const deleteBlog=async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const blog = await blogsModel.findOneAndDelete({ _id: id, author: userId });
+
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found or not authorized" });
+    }
+
+    res.json({ success: true, message: "Blog deleted successfully", blog });
+  } catch (error) {
+    console.error("Error in deleteBlog:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}

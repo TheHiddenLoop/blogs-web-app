@@ -5,12 +5,23 @@ import { useRecoilValue } from "recoil";
 import { userState } from "../atom/atoms";
 import { useAuthStore } from "../store/useAuthStore";
 import { authUserState } from "../atom/checkAuth";
+import { useBlogsStore } from "../store/useBlogsStore"
 
 export default function Navbar() {
+  const [input, setInput] = useState('');
   const authUser = useRecoilValue(authUserState);
   const [visible, setVisible] = useState(false);
   const data = useRecoilValue(userState);
   const { logout } = useAuthStore();
+
+  const { filterBlogs } = useBlogsStore();
+
+  function handleChange(e) {
+    const value = e.target.value;
+    let type="search";
+    setInput(value);
+    filterBlogs(type, value);
+  }
 
   return (
     <header className="px-4 sm:px-6 lg:px-10 py-4 border-b bg-white shadow-sm relative">
@@ -34,6 +45,8 @@ export default function Navbar() {
                 type="text"
                 placeholder="Search..."
                 className="bg-transparent outline-none w-full text-sm h-6"
+                onChange={handleChange}
+                value={input}
               />
             </div>
 

@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import { Pencil, Trash2, MessageSquare, Heart, SquarePen } from "lucide-react";
 
-export function AllBlogsCard() {
+export function AllBlogsCard({title, image, auther, autherProfile, handleDelete, createdAt}) {
   const [isHovered, setIsHovered] = useState(false);
+
+
+  function getDaysAgo(dateString) {
+    const createdDate = new Date(dateString);
+    const today = new Date();
+    const diffTime = Math.abs(today - createdDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    return `${diffDays} days`;
+  }
+
 
   return (
     <div
@@ -12,13 +24,13 @@ export function AllBlogsCard() {
     >
       <div className="flex items-center p-3 sm:p-5">
         <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJahkR9xsWhp7lm8_2sSBETZVZa0APvJ22oQ&s"
+          src={image}
           alt="blog"
-          className="h-[70px] sm:h-[80px] border-2 rounded-md object-cover"
+          className="h-[70px] sm:h-[80px] md:w-[130px] border-2 rounded-md object-cover"
         />
         <div className="text-gray-700 text-[1rem] sm:text-[1.2rem] ml-4 flex flex-col gap-2 sm:gap-4">
-          <p className="font-semibold">What is Hello World</p>
-          <p className="text-xs sm:text-sm text-gray-500">2 hours ago</p>
+          <p className="font-semibold">{title}</p>
+          <p className="text-xs sm:text-sm text-gray-500">{getDaysAgo(createdAt)} {getDaysAgo(createdAt) === "Today" ? "posted" : "ago"}</p>
         </div>
       </div>
 
@@ -32,15 +44,16 @@ export function AllBlogsCard() {
               />
               <Trash2
                 size={22}
+                onClick={handleDelete}
                 className="text-gray-500 hover:text-red-500 transition-colors"
               />
             </>
           ) : (
-            <span className="text-xs sm:text-sm text-gray-600">Programmer</span>
+            <span className="text-xs sm:text-sm text-gray-600">{auther}</span>
           )}
 
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJahkR9xsWhp7lm8_2sSBETZVZa0APvJ22oQ&s"
+            src={autherProfile}
             alt="profile"
             className="h-[26px] w-[26px] sm:h-[30px] sm:w-[30px] border-2 rounded-full"
           />

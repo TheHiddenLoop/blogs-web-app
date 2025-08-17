@@ -16,7 +16,12 @@ export function Home() {
     allBlogs();
   }, []);
 
-  
+  const { filterBlogs } = useBlogsStore();
+
+  function handleSubmit(e) {
+    let type="category";
+    filterBlogs(type, e);
+  }
 
 
   return (
@@ -38,6 +43,7 @@ export function Home() {
             <button
               key={i}
               className="py-2 px-5 bg-[#d5dfeb] text-sm rounded-lg hover:bg-[#a4b6c8] transition"
+              onClick={()=>handleSubmit(e)}
             >
               {e}
             </button>
