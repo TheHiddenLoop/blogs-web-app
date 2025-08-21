@@ -1,11 +1,20 @@
 import { axiosInstance } from "../libs/axios";
-import { blogAtom, loadingAtom } from "../atom/atom";
-import { useSetRecoilState } from "recoil";
+import {
+  blogAtom,
+  commentAtom,
+  isLikeAtom,
+  likeAtom,
+  loadingAtom,
+} from "../atom/atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import toast from "react-hot-toast";
 
 export function useBlogsStore() {
   const setBlog = useSetRecoilState(blogAtom);
   const setLoading = useSetRecoilState(loadingAtom);
+  const setComment = useSetRecoilState(commentAtom);
+  const setLike = useSetRecoilState(likeAtom);
+  const setIsLike = useSetRecoilState(isLikeAtom);
 
   const publishBlogs = async (formData) => {
     try {
@@ -89,7 +98,7 @@ export function useBlogsStore() {
       const res = await axiosInstance.delete("/blogs/deleteblogs/" + id);
 
       // UI se turant hatao
-      setBlog(prev => prev.filter(blog => blog._id !== id));
+      setBlog((prev) => prev.filter((blog) => blog._id !== id));
 
       toast.success(res.data.message);
     } catch (err) {
@@ -99,5 +108,64 @@ export function useBlogsStore() {
     }
   };
 
-  return { publishBlogs, allBlogs, readBlogs, filterBlogs, userBlogs, deleteBlogs };
+  const sendComments = async (formData) => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.post("/blogs/comment", formData);
+      toast.success(res.data.message);
+      return res.data;
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to post comment");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchComment = async (id) => {
+    try {
+      const res = await axiosInstance.get("/blogs/allcomments/" + id);
+      setComment(res.data.data);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const likeBlogs = async (id) => {
+    try {
+      const res = await axiosInstance.post(`/blogs/likeblog/${id}`);
+      console.log(res.data);
+      setLike(res.data.likesCount);
+      setIsLike(res.data.isLiked);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const allLike = async (id) => {
+    try {
+      const res = await axiosInstance.get(`/blogs/likes-status/${id}`);
+      setLike(res.data.likesCount);
+      setIsLike(res.data.isLiked);
+      
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  return {
+    publishBlogs,
+    allBlogs,
+    readBlogs,
+    filterBlogs,
+    userBlogs,
+    deleteBlogs,
+    sendComments,
+    fetchComment,
+    likeBlogs,
+    allLike
+  };
 }

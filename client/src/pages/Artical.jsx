@@ -5,13 +5,17 @@ import { AddComment } from '../components/AddComment';
 import { useParams } from 'react-router-dom';
 import { useBlogsStore } from '../store/useBlogsStore';
 import { useRecoilValue } from 'recoil';
-import { loadingAtom } from '../atom/atom';
+import { commentAtom, isLikeAtom, likeAtom, loadingAtom } from '../atom/atom';
 
 export function Artical() {
   const { id } = useParams();
-  const { readBlogs } = useBlogsStore();
+  const { readBlogs, fetchComment, likeBlogs, allLike } = useBlogsStore();
   const [blog, setBlog] = useState(null);
   const loader = useRecoilValue(loadingAtom);
+  const commentData = useRecoilValue(commentAtom);
+  const likes = useRecoilValue(likeAtom);
+  const isLiked = useRecoilValue(isLikeAtom);
+
 
   useEffect(() => {
     if (!id) return;
@@ -20,6 +24,20 @@ export function Artical() {
       if (fetchedBlog) setBlog(fetchedBlog);
     });
   }, [id]);
+
+  useEffect(() => {
+    fetchComment(id);
+    allLike(id);
+  }, []);
+
+  async function handleLike() {
+    try {
+      await likeBlogs(id);
+    } catch (err) {
+      console.error("Error liking blog:", err);
+    }
+  }
+
 
   function getDaysAgo(dateString) {
     const createdDate = new Date(dateString);
@@ -58,21 +76,55 @@ export function Artical() {
       </div>
 
       <div className="flex items-center gap-5 mb-6 text-gray-600">
-        <Heart className="cursor-pointer hover:text-red-500 transition" />
-        <MessageCircleMore className="cursor-pointer hover:text-blue-500 transition" />
+        <div className="flex items-center gap-2">
+          <span>{likes}</span>
+          <Heart
+            onClick={handleLike}
+            className={`cursor-pointer transition 
+      ${isLiked ? "text-red-500 fill-red-500" : "text-gray-600 hover:text-red-500"}`}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span>{commentData.length}</span>
+          <MessageCircleMore className="cursor-pointer hover:text-blue-500 transition" />
+        </div>
+
+
         <Bookmark className="cursor-pointer hover:text-yellow-500 transition" />
       </div>
 
-      <div>
+
+      {/*This is without scrolling  */}
+      {/* <div>
         <h2 className="text-xl font-semibold mb-4">Comments</h2>
         <div className="flex flex-col gap-4 pr-2">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <Comment key={index} />
+          {commentData.map((val) => (
+            <Comment key={val._id} userProfile={val.user?.profilepic} name={val.user?.name} createdAt={val.createdAt} comment={val.comment} />
+          ))}
+        </div>
+      </div> */}
+
+      {/*This is with scrolling  */}
+
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Comments</h2>
+        <p className='border border-gray-200 mb-2'></p>
+        <div className="flex flex-col gap-4 pr-2 max-h-[400px] overflow-y-auto">
+          {commentData.map((val) => (
+            <Comment
+              key={val._id}
+              userProfile={val.user?.profilepic}
+              name={val.user?.name}
+              createdAt={val.createdAt}
+              comment={val.comment}
+            />
           ))}
         </div>
       </div>
 
-      <AddComment />
+
+      <AddComment postId={blog._id} />
     </div>
   );
 }

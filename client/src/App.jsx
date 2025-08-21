@@ -17,6 +17,7 @@ import ResetPassword from "./pages/ResetPassword";
 import { authUserState, isCheckingAuthState } from "./atom/checkAuth";
 import useCheckAuth from "./atom/useCheckAuth";
 import { UserBlogs } from "./pages/UserBlogs";
+import {Setting} from "./pages/Setting.jsx"
 
 export default function App() {
   const isChecking = useRecoilValue(isCheckingAuthState);
@@ -44,6 +45,8 @@ export default function App() {
         <Route path="/artical/:id" element={authUser ? <Artical /> : <Navigate to="/login" />} />
         <Route path="/create/blog" element={authUser ? <CreateBlog /> : <Navigate to="/login" />} />
         <Route path="/all/blogs" element={authUser ? <UserBlogs /> : <Navigate to="/login" />} />
+        <Route path="/setting" element={authUser ? <Setting /> : <Navigate to="/login" />} />
+
 
         {/* Auth-related routes */}
         <Route path="/login" element={!authUser ? <Login /> : <Navigate to="/" />} />

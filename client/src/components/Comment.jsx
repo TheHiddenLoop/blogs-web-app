@@ -1,11 +1,23 @@
 import React from 'react';
 
-export function Comment() {
+export function Comment({ userProfile, name, createdAt, comment }) {
+
+  function getDaysAgo(dateString) {
+    const createdDate = new Date(dateString);
+    const today = new Date();
+    const diffTime = Math.abs(today - createdDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    return `${diffDays} days`;
+  }
+
+
   return (
     <div className="flex items-start gap-4 py-4">
-      <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
+      <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-blue-600">
         <img
-          src="https://t4.ftcdn.net/jpg/05/11/55/89/360_F_511558939_ydD0Jfnj5wDgHSnQr7TwCIcpYVNyqTK7.jpg"
+          src={userProfile?userProfile:"/images/user.png"}
           alt="User avatar"
           className="h-full w-full object-cover"
         />
@@ -13,10 +25,10 @@ export function Comment() {
 
       <div className="flex flex-col">
         <p className="text-sm font-semibold text-gray-800">
-          Alex Johnson <span className="text-xs font-normal text-gray-500 ml-2">1 day ago</span>
+          {name} <span className="text-xs font-normal text-gray-500 ml-2">{getDaysAgo(createdAt)} {getDaysAgo(createdAt) === "Today" ? "posted" : "ago"}</span>
         </p>
         <p className="text-sm text-gray-700 mt-1 leading-relaxed">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque possimus praesentium officiis, id incidunt quod aut sed nihil consequuntur velit!
+          {comment}
         </p>
       </div>
     </div>

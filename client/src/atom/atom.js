@@ -9,3 +9,18 @@ export const loadingAtom=atom({
     key:"loadingAtom",
     default:false
 })
+
+export const commentAtom=atom({
+    key:"commentAtom",
+    default:[]
+});
+
+export const likeAtom=atom({
+    key:"likeAtom",
+    default: 0
+});
+
+export const isLikeAtom=atom({
+    key:"isLikeAtom",
+    default: false
+});

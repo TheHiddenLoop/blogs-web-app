@@ -1,13 +1,23 @@
 import React, { useState } from "react";
+import { useRecoilValue } from "recoil";
+import { userState } from "../atom/atoms";
+import { useBlogsStore } from "../store/useBlogsStore";
+import { loadingAtom } from "../atom/atom";
+import { Loader } from "lucide-react";
 
-export function AddComment() {
+export function AddComment({ postId }) {
   const [comment, setComment] = useState("");
+  const data = useRecoilValue(userState);
+  const loading = useRecoilValue(loadingAtom);
 
-  const handleSubmit = (e) => {
+  const { sendComments } = useBlogsStore();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!comment.trim()) return;
 
-    console.log("Submitted comment:", comment);
+    const formData = { postId: postId, comment: comment };
+    await sendComments(formData);
     setComment("");
   };
 
@@ -15,9 +25,9 @@ export function AddComment() {
     <div className="mt-8 border-t pt-6">
       <h3 className="text-lg font-semibold mb-4">Leave a Comment</h3>
       <form onSubmit={handleSubmit} className="flex items-start gap-4">
-        <div className="h-12 w-12 rounded-full overflow-hidden flex-shrink-0">
+        <div className="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-blue-600">
           <img
-            src="https://t4.ftcdn.net/jpg/05/11/55/89/360_F_511558939_ydD0Jfnj5wDgHSnQr7TwCIcpYVNyqTK7.jpg"
+            src={data.profilepic?data.profilepic: "/images/user.png"}
             alt="User avatar"
             className="h-full w-full object-cover"
           />
@@ -35,7 +45,8 @@ export function AddComment() {
             type="submit"
             className="self-end mt-2 bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600 transition-transform duration-300 hover:scale-110"
           >
-            Comment
+            {loading && <Loader className="inline size-5 animate-spin" />}
+            {loading ? "Publishing..." : "Comment"}
           </button>
         </div>
       </form>

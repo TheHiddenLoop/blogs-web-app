@@ -1,5 +1,5 @@
 import { Bell, Menu, Search, PenSquare, ChevronDown, ChevronUp, LogOut, User2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { userState } from "../atom/atoms";
@@ -23,8 +23,27 @@ export default function Navbar() {
     filterBlogs(type, value);
   }
 
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setVisible(false); 
+      }
+    }
+
+    if (visible) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [visible]);
+
   return (
     <header className="px-4 sm:px-6 lg:px-10 py-4 border-b bg-white shadow-sm relative">
+   {/* </header><header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-10 py-4 border-b bg-white shadow-sm"> */}
       <div className="flex justify-between items-center gap-6">
         <div className="flex items-center gap-4 select-none">
           <Link to={"/"}>
@@ -39,7 +58,7 @@ export default function Navbar() {
 
         {authUser && (
           <>
-            <div className="hidden sm:flex items-center bg-gray-100 px-3 py-1 border-2 rounded-md w-72 focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none">
+            <div className="hidden sm:flex items-center bg-gray-100 px-3 py-1 border-2 rounded-md w-72 focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none" >
               <Search className="w-4 h-4 text-gray-500 mr-2" />
               <input
                 type="text"
@@ -70,10 +89,10 @@ export default function Navbar() {
 
             {visible && (
               <div className="absolute top-[69px] right-2 bg-white shadow-xl rounded-xl py-3 px-2 w-48 animate-fadeIn z-50">
-                <ul className="flex flex-col">
+                <ul className="flex flex-col" ref={modalRef}>
                   <li className="group flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-blue-500 hover:text-white transition-all duration-200 cursor-pointer">
                     <User2 className="text-blue-600 group-hover:text-white" />
-                    Profile
+                    <Link to={"/setting"}>Profile</Link>
                   </li>
                   <li
                     onClick={() => logout()}

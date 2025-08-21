@@ -21,7 +21,7 @@ export function HomePost({ title, description, date, author, image, to }) {
         <img
           src={image}
           alt={`Thumbnail for ${title}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>
     </div>
