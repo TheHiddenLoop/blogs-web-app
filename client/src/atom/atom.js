@@ -5,6 +5,12 @@ export const blogAtom=atom({
     default:[]
 })
 
+export const userDataAtom=atom({
+    key:"userDataAtom",
+    default:[]
+})
+
+
 export const loadingAtom=atom({
     key:"loadingAtom",
     default:false

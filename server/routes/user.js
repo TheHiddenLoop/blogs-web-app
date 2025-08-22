@@ -7,6 +7,7 @@ import {
   requestPasswordReset,
   resetPassword,
   logout,
+  updateProfile,
 } from "../controllers/authController.js";
 import {
   protectRoute,
@@ -23,6 +24,7 @@ signupRouter.get("/check", protectRoute, checkAuth);
 signupRouter.post("/reset/password", requestPasswordReset);
 signupRouter.post("/reset-password", validatePassword, resetPassword);
 signupRouter.post("/logout", protectRoute, logout);
+signupRouter.post("/update-profile", protectRoute, updateProfile);
 
 
 export default signupRouter;

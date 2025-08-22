@@ -3,6 +3,7 @@ import { userToken } from "../lib/utils.js"
 import bcrypt from "bcrypt"
 import { sendOTPEmail } from "../lib/email.js"
 import { otpVerificationTemplate, passwordResetSuccessTemplate, resetPasswordTemplate } from "../lib/EmailTemplets.js";
+import { cloudinary } from "../lib/cloudinary.js";
 
 const SALT_ROUNDS = 10;
 const OTP_EXPIRY_MINUTES = 5;
@@ -34,9 +35,9 @@ export const signup = async (req, res) => {
         isVerified: false,
       });
 
-      const otpContent=otpVerificationTemplate(otp);
+      const otpContent = otpVerificationTemplate(otp);
 
-      await sendOTPEmail(email,"Your One-Time Password (OTP) for Verification" ,otpContent);
+      await sendOTPEmail(email, "Your One-Time Password (OTP) for Verification", otpContent);
 
       return res.status(201).json({
         success: true,
@@ -45,7 +46,7 @@ export const signup = async (req, res) => {
           _id: newUser._id,
           name: newUser.name,
           email: newUser.email,
-          profilepic:newUser.profilepic
+          profilepic: newUser.profilepic
         },
       });
     }
@@ -66,7 +67,7 @@ export const signup = async (req, res) => {
           _id: existingUser._id,
           name: existingUser.name,
           email: existingUser.email,
-          profilepic:existingUser.profilepic
+          profilepic: existingUser.profilepic
 
         },
       });
@@ -136,7 +137,7 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         isVerified: user.isVerified,
-        profilepic:user.profilepic
+        profilepic: user.profilepic
 
       },
     });
@@ -153,7 +154,7 @@ export const login = async (req, res) => {
 
 export const verifyOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;    
+    const { email, otp } = req.body;
 
     if (!email || !otp) {
       return res.status(400).json({
@@ -185,15 +186,15 @@ export const verifyOtp = async (req, res) => {
     user.otp = null;
     user.otpExpires = null;
     await user.save();
-    
+
     userToken(user._id, res);//for token verification
-    
+
     return res.status(200).json({
       success: true,
       message: "Account verified successfully.",
       user: {
         _id: user._id,
-        profilepic:user.profilepic,
+        profilepic: user.profilepic,
         name: user.name,
         email: user.email,
       },
@@ -226,11 +227,11 @@ const generateToken2 = () => {
   return [...Array(30)].map(() => Math.random().toString(36)[2]).join("");
 };
 
-export const requestPasswordReset=async(req, res)=>{
+export const requestPasswordReset = async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email ) {
+    if (!email) {
       return res.status(400).json({
         success: false,
         message: "Email is required.",
@@ -245,15 +246,15 @@ export const requestPasswordReset=async(req, res)=>{
         message: "User does not exist.",
       });
     }
-    const token=generateToken2();
-    user.resetPasswordToken=token;
-    user.resetPasswordExpires= Date.now() + 3600000; 
+    const token = generateToken2();
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    const resetLink=`${process.env.FRONTEND_URL}/reset-password/${token}`
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`
     console.log(resetLink);
-    
-    await sendOTPEmail(user.email,"Reset Your Password – Action Required",resetPasswordTemplate(resetLink))
+
+    await sendOTPEmail(user.email, "Reset Your Password – Action Required", resetPasswordTemplate(resetLink))
 
     return res.status(200).json({
       success: true,
@@ -270,22 +271,22 @@ export const requestPasswordReset=async(req, res)=>{
   }
 }
 
-export const resetPassword=async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
-    
-    if (!token || !password ) {
+
+    if (!token || !password) {
       return res.status(400).json({
         success: false,
         message: "Token and password are required.",
       });
     }
 
-    const user=await User.findOne({
-      resetPasswordToken:token,
-      resetPasswordExpires:{ $gt: Date.now() }
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
     })
-    
+
 
     if (!user) {
       return res.status(404).json({
@@ -294,14 +295,14 @@ export const resetPassword=async (req, res) => {
       });
     }
 
-    user.password=await bcrypt.hash(password,SALT_ROUNDS);
-    user.resetPasswordToken=null;
-    user.resetPasswordExpires=null;
+    user.password = await bcrypt.hash(password, SALT_ROUNDS);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
     await user.save();
-    
-  
-    
-    await sendOTPEmail(user.email,"Your Password Has Been Successfully Reset",passwordResetSuccessTemplate())
+
+
+
+    await sendOTPEmail(user.email, "Your Password Has Been Successfully Reset", passwordResetSuccessTemplate())
 
     return res.status(200).json({
       success: true,
@@ -321,9 +322,47 @@ export const resetPassword=async (req, res) => {
 export const logout = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ success:true, message: "Logged out successfully" });
+    res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     console.error('Logout error:', error.message);
     res.status(500).json({ message: 'Server error during logout' });
+  }
+};
+
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilepic, name, about, location, facebook, twitter, linkedin, instagram } = req.body;
+    const userId = req.user._id;
+
+    const updateData = {};
+
+    if (profilepic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilepic);
+      updateData.profilepic = uploadResponse.secure_url;
+    }
+
+    const allowedFields = { name, about, location, facebook, instagram, twitter, linkedin };
+    for (const key in allowedFields) {
+      if (allowedFields[key] !== undefined) {
+        updateData[key] = allowedFields[key];
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No update data provided" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile information updated",
+      updatedData: updatedUser,
+    });
+
+  } catch (error) {
+    console.error("Profile update error:", error.message);
+    res.status(500).json({ message: "Server error during profile update" });
   }
 };

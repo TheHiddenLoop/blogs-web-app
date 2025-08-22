@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { userState } from "../atom/atoms";
 import { useBlogsStore } from "../store/useBlogsStore";
-import { loadingAtom } from "../atom/atom";
+import { loadingAtom, userDataAtom } from "../atom/atom";
 import { Loader } from "lucide-react";
 
 export function AddComment({ postId }) {
   const [comment, setComment] = useState("");
-  const data = useRecoilValue(userState);
+  const data = useRecoilValue(userDataAtom);
   const loading = useRecoilValue(loadingAtom);
 
   const { sendComments } = useBlogsStore();

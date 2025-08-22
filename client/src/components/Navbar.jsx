@@ -2,16 +2,16 @@ import { Bell, Menu, Search, PenSquare, ChevronDown, ChevronUp, LogOut, User2 } 
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { userState } from "../atom/atoms";
 import { useAuthStore } from "../store/useAuthStore";
 import { authUserState } from "../atom/checkAuth";
 import { useBlogsStore } from "../store/useBlogsStore"
+import { userDataAtom } from "../atom/atom";
 
 export default function Navbar() {
   const [input, setInput] = useState('');
   const authUser = useRecoilValue(authUserState);
   const [visible, setVisible] = useState(false);
-  const data = useRecoilValue(userState);
+  const data = useRecoilValue(userDataAtom);
   const { logout } = useAuthStore();
 
   const { filterBlogs } = useBlogsStore();
@@ -73,7 +73,7 @@ export default function Navbar() {
               <Bell className="w-5 h-5 text-gray-600 cursor-pointer hover:text-black" />
 
               <div
-                onClick={() => setVisible(!visible)}
+                
                 className="flex items-center gap-1 cursor-pointer select-none"
               >
                 <div className="w-8 h-8 bg-gray-300 rounded-full border-2 border-blue-700 overflow-hidden">
@@ -83,7 +83,7 @@ export default function Navbar() {
                     className="h-full w-full object-cover"
                   />
                 </div>
-                {visible ? <ChevronUp /> : <ChevronDown />}
+                {visible ? <ChevronUp onClick={() => setVisible(!visible)}/> : <ChevronDown onClick={() => setVisible(!visible)}/>}
               </div>
             </div>
 
