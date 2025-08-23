@@ -27,7 +27,7 @@ export default function RequestResetPassword() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-69px)] bg-gray-50">
+    <div className="flex min-h-[calc(100vh-60px)] bg-gray-50">
       <div className="w-full lg:w-1/2 flex justify-center items-center p-6 bg-white">
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">

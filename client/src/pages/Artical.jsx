@@ -1,5 +1,3 @@
-"use client"
-
 import { Bookmark, Heart, Loader, MessageCircleMore } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Comment } from "../components/Comment"

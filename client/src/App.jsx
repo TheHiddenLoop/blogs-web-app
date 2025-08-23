@@ -19,6 +19,7 @@ import { authUserState, isCheckingAuthState } from "./atom/checkAuth";
 import useCheckAuth from "./atom/useCheckAuth";
 
 import Layout from "./Layout/Layout.jsx"; // 👈 new layout
+import Navbar from "./components/Navbar.jsx";
 
 export default function App() {
   const isChecking = useRecoilValue(isCheckingAuthState);
@@ -40,8 +41,8 @@ export default function App() {
   return (
     <div className="font-poppins bg-[#f7f7f7] min-h-screen">
       <Toaster />
+          {!isChecking && !authUser && <Navbar />}
       <Routes>
-        {/* ✅ Protected Layout with Sidebar + Navbar */}
         <Route
           path="/"
           element={authUser ? <Layout /> : <Navigate to="/login" />}
@@ -53,7 +54,6 @@ export default function App() {
           <Route path="setting" element={<Setting />} />
         </Route>
 
-        {/* Auth-related routes */}
         <Route
           path="/login"
           element={!authUser ? <Login /> : <Navigate to="/" />}
@@ -66,7 +66,6 @@ export default function App() {
         <Route path="/request-reset-password" element={<RequesResetPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to={authUser ? "/" : "/login"} />} />
       </Routes>
     </div>

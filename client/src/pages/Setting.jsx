@@ -1,4 +1,3 @@
-// Setting.jsx
 import React from "react";
 import { ProfileLeft } from "../components/ProfileLeft";
 import ProfileR from "../components/ProfleR";

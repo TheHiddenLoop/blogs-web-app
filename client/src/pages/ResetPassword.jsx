@@ -40,13 +40,11 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-69px)] bg-gray-50">
+    <div className="flex min-h-[calc(100vh-60px)] bg-gray-50">
       
-      {/* Left Side - Form */}
       <div className="w-full lg:w-1/2 flex justify-center items-center p-6 bg-white">
         <div className="w-full max-w-sm space-y-6">
           
-          {/* Logo + Heading */}
           <div className="text-center">
             <div className="flex justify-center mb-3">
               <div className="p-2.5 bg-blue-100 rounded-full">
@@ -57,10 +55,8 @@ export default function ResetPassword() {
             <p className="text-gray-600 text-sm">Enter your new password below</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             
-            {/* New Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 New Password
@@ -88,7 +84,6 @@ export default function ResetPassword() {
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Confirm Password
@@ -116,7 +111,6 @@ export default function ResetPassword() {
               </div>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}

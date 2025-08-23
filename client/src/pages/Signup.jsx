@@ -34,7 +34,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-69px)] bg-gray-50">
+    <div className="flex min-h-[calc(100vh-60px)] bg-gray-50">
   <div className="w-full lg:w-1/2 flex justify-center items-center p-6 bg-white">
     <div className="w-full max-w-sm space-y-6">
       <div className="text-center">
@@ -63,7 +63,6 @@ export default function Signup() {
           </div>
         </div>
 
-        {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
           <div className="relative">
@@ -78,7 +77,6 @@ export default function Signup() {
           </div>
         </div>
 
-        {/* Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
           <div className="relative">
@@ -100,7 +98,6 @@ export default function Signup() {
           </div>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
@@ -116,7 +113,6 @@ export default function Signup() {
           )}
         </button>
 
-        {/* Sign In Link */}
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{' '}
@@ -129,7 +125,6 @@ export default function Signup() {
     </div>
   </div>
 
-  {/* Right side pattern */}
   <AuthPattern 
     title="Join Our Community" 
     subtitle="Create your account and become part of our growing community of users who trust our platform." 

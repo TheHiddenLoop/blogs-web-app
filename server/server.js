@@ -3,8 +3,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import { blogsRoutes } from "./routes/blogs.js";
 import signupRouter from "./routes/user.js";
@@ -32,17 +30,6 @@ app.use(
 
 app.use("/api/blogs", blogsRoutes);
 app.use("/api/auth", signupRouter);
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
-  });
-}
 
 app.listen(PORT, () => {
   console.log(`Server is running at ${PORT} => http://localhost:${PORT}`);
