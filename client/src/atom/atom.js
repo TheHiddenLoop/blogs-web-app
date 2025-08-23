@@ -5,6 +5,11 @@ export const blogAtom=atom({
     default:[]
 })
 
+export const readBlogAtom=atom({
+    key:"readBlogAtom",
+    default:[]
+})
+
 export const userDataAtom=atom({
     key:"userDataAtom",
     default:[]
@@ -29,4 +34,9 @@ export const likeAtom=atom({
 export const isLikeAtom=atom({
     key:"isLikeAtom",
     default: false
+});
+
+export const saveBlogAtom=atom({
+    key:"saveBlogAtom",
+    default: []
 });

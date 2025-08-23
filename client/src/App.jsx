@@ -4,7 +4,6 @@ import { useRecoilValue } from "recoil";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import Navbar from "./components/Navbar";
 import { Home } from "./pages/Home";
 import { Artical } from "./pages/Artical";
 import { CreateBlog } from "./pages/CreateBlog";
@@ -13,11 +12,13 @@ import Signup from "./pages/Signup";
 import EmailVerify from "./pages/EmailVarify";
 import RequesResetPassword from "./pages/RequesResetPassword";
 import ResetPassword from "./pages/ResetPassword";
+import { UserBlogs } from "./pages/UserBlogs";
+import { Setting } from "./pages/Setting.jsx";
 
 import { authUserState, isCheckingAuthState } from "./atom/checkAuth";
 import useCheckAuth from "./atom/useCheckAuth";
-import { UserBlogs } from "./pages/UserBlogs";
-import {Setting} from "./pages/Setting.jsx"
+
+import Layout from "./Layout/Layout.jsx"; // 👈 new layout
 
 export default function App() {
   const isChecking = useRecoilValue(isCheckingAuthState);
@@ -39,18 +40,28 @@ export default function App() {
   return (
     <div className="font-poppins bg-[#f7f7f7] min-h-screen">
       <Toaster />
-      <Navbar />
       <Routes>
-        <Route path="/" element={authUser ? <Home /> : <Navigate to="/login" />} />
-        <Route path="/artical/:id" element={authUser ? <Artical /> : <Navigate to="/login" />} />
-        <Route path="/create/blog" element={authUser ? <CreateBlog /> : <Navigate to="/login" />} />
-        <Route path="/all/blogs" element={authUser ? <UserBlogs /> : <Navigate to="/login" />} />
-        <Route path="/setting" element={authUser ? <Setting /> : <Navigate to="/login" />} />
-
+        {/* ✅ Protected Layout with Sidebar + Navbar */}
+        <Route
+          path="/"
+          element={authUser ? <Layout /> : <Navigate to="/login" />}
+        >
+          <Route index element={<Home />} />
+          <Route path="artical/:id" element={<Artical />} />
+          <Route path="create/blog" element={<CreateBlog />} />
+          <Route path="all/blogs" element={<UserBlogs />} />
+          <Route path="setting" element={<Setting />} />
+        </Route>
 
         {/* Auth-related routes */}
-        <Route path="/login" element={!authUser ? <Login /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!authUser ? <Signup /> : <Navigate to="/" />} />
+        <Route
+          path="/login"
+          element={!authUser ? <Login /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/signup"
+          element={!authUser ? <Signup /> : <Navigate to="/" />}
+        />
         <Route path="/verify-email" element={<EmailVerify />} />
         <Route path="/request-reset-password" element={<RequesResetPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />

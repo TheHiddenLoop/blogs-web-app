@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Pencil, Trash2, MessageSquare, Heart, SquarePen } from "lucide-react";
+import { EditModel } from "./EditModel";
 
-export function AllBlogsCard({title, image, auther, autherProfile, handleDelete, createdAt}) {
+export function AllBlogsCard({title, image, auther,initialData, autherProfile, handleDelete, createdAt}) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isOpen, setIsOpen]=useState(false);
 
 
   function getDaysAgo(dateString) {
@@ -39,6 +41,7 @@ export function AllBlogsCard({title, image, auther, autherProfile, handleDelete,
           {isHovered ? (
             <>
               <SquarePen
+                onClick={()=>setIsOpen(!isOpen)}
                 size={22}
                 className="text-gray-500 hover:text-blue-500 transition-colors"
               />
@@ -60,14 +63,12 @@ export function AllBlogsCard({title, image, auther, autherProfile, handleDelete,
         </div>
         <div className="flex gap-3 sm:gap-4 text-gray-500 items-center">
           <span className="flex items-center gap-1">
-            450
             <MessageSquare
               size={18}
               className="hover:text-green-500 transition-colors"
             />
           </span>
           <span className="flex items-center gap-1">
-            450
             <Heart
               size={18}
               className="hover:text-pink-500 transition-colors"
@@ -75,6 +76,8 @@ export function AllBlogsCard({title, image, auther, autherProfile, handleDelete,
           </span>
         </div>
       </div>
+
+      {isOpen && <EditModel initialData={initialData} isOpen={isOpen} onClose={() => setIsOpen(false)}/>}
     </div>
   );
 }

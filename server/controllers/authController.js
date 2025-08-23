@@ -342,12 +342,19 @@ export const updateProfile = async (req, res) => {
       updateData.profilepic = uploadResponse.secure_url;
     }
 
-    const allowedFields = { name, about, location, facebook, instagram, twitter, linkedin };
+    const allowedFields = { name, about, location };
     for (const key in allowedFields) {
-      if (allowedFields[key] !== undefined) {
+      if (allowedFields[key] !== undefined && allowedFields[key] !=="") {
         updateData[key] = allowedFields[key];
       }
     }
+
+
+    const linksFields = { facebook, instagram, twitter, linkedin };
+    for (const key in linksFields) {
+        updateData[key] = linksFields[key];
+    }
+
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "No update data provided" });

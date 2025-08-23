@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/useAuthStore.js"
 import { useRecoilValue } from "recoil";
 import { authLoadingState } from "../atom/atoms.js";
 import { toast } from "react-hot-toast"
+import { SocialIcon } from "./SocialIcon.jsx";
 
 export function ProfileLeft(props) {
   const [selectedImg, setSelectedImg] = useState(null);
@@ -12,10 +13,10 @@ export function ProfileLeft(props) {
 
 
   const icons = [
-    { icon: "/images/icons8-facebook-50.png", link: props.facebook },
-    { icon: "/images/icons8-instagram-50.png", link: props.instagram },
-    { icon: "/images/icons8-twitter-50.png", link: props.twitter },
-    { icon: "/images/icons8-linkedin-50.png", link: props.linkedin },
+    { icon: "/images/icons8-facebook-50.png", link: props.facebook, name:"Facebook" },
+    { icon: "/images/icons8-instagram-50.png", link: props.instagram, name:"Instagram" },
+    { icon: "/images/icons8-twitter-50.png", link: props.twitter, name:"Twitter" },
+    { icon: "/images/icons8-linkedin-50.png", link: props.linkedin, name:"Linkedin" },
   ];
 
   const handleImageUpload = async (e) => {
@@ -80,29 +81,14 @@ export function ProfileLeft(props) {
       </div>
 
       <h2 className="font-display text-3xl font-bold my-2">{props.name}</h2>
-      <p className="text-sm text-gray-500 mb-3">@angechchauhan</p>
 
       <p className="text-sm leading-relaxed text-gray-700 md:text-justify mt-4">
-        {props.about}
+        {props.about || "I am active blogger"}
       </p>
 
       <div className="flex gap-4 mt-8">
         {icons.map((val, i) => (
-          val.link === "" ? (
-            <img key={i}
-              src={val.icon}
-              alt={`social-icon-${i}`}
-              className="w-[37px] cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md rounded-md hover:border-[2px]"
-            />
-          ) : (
-            <a href={val.link ? val.link : ""} key={i} target="_blank" rel="noopener noreferrer">
-              <img
-                src={val.icon}
-                alt={`social-icon-${i}`}
-                className="w-[37px] cursor-pointer transition-transform duration-300 hover:scale-110 hover:shadow-md rounded-md hover:border-[2px]"
-              />
-            </a>
-          )
+          <SocialIcon key={i} icon={val.icon} link={val.link} name={val.name} />
         ))}
       </div>
     </div>

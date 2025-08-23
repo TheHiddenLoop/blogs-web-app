@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema(
     about: {
       type: String,
       trim: true,
-      default: "",
+      default: "I am active Blogger.",
     },
 
     location: {
@@ -52,6 +52,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    savedBlogs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'blogs' }],
 
     facebook: {
       type: String,

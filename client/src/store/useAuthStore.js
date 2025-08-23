@@ -35,8 +35,6 @@ export function useAuthStore() {
         return;
       }
       const user = res.data.user;
-      console.log(user);
-
       setUser(user);
       setAuthUser(user);
       toast.success(res.data.message);
@@ -56,8 +54,6 @@ export function useAuthStore() {
       const res = await axiosInstance.post("/auth/verify/otp", { email, otp });
 
       const user = res.data.user;
-      console.log(user);
-
       setAuthUser(user);
       toast.success(res.data.message);
 
@@ -145,7 +141,7 @@ export function useAuthStore() {
 
       const updateData = Object.fromEntries(
         Object.entries(data).filter(
-          ([_, value]) => value !== undefined && value !== ""
+          ([_, value]) => value !== undefined
         )
       );
 

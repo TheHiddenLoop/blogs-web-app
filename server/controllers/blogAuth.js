@@ -30,6 +30,43 @@ export async function blogPost(req, res) {
 }
 
 
+export async function updateBlog(req, res) {
+  try {
+    const { title, story, category, tags, image } = req.body;
+    const { id } = req.params;
+
+    const blog = await blogsModel.findById(id);
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
+
+    let updatedFields = { title, story, category, tags };
+
+    if (image) {
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      updatedFields.imagepost = uploadResponse.secure_url;
+    }
+
+    const updatedBlog = await blogsModel.findByIdAndUpdate(
+      id,
+      { $set: updatedFields },
+      { new: true } 
+    );
+
+    res.json({
+      success: true,
+      message: "Blog updated successfully!",
+      blog: updatedBlog,
+    });
+  } catch (error) {
+    console.error("Error in updateBlog:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update blog.",
+    });
+  }
+}
+
 
 export async function getAllPosts(req, res) {
   try {
@@ -228,5 +265,89 @@ export const getBlogLikesStatus = async (req, res) => {
   } catch (error) {
     console.error("Error in getBlogLikesStatus:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+
+export const toggleSaveBlog = async (req, res) => {
+  try {
+    const { id: blogId } = req.params;
+    const userId = req.user._id;
+
+    const blog = await blogsModel.findById(blogId);
+    if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const alreadySaved = user.savedBlogs.some(
+      (savedId) => savedId.toString() === blogId
+    );
+
+    if (alreadySaved) {
+      user.savedBlogs.pull(blogId); // Unsave
+      await user.save();
+      return res.status(200).json({
+        message: "Removed from saved",
+        savedCount: user.savedBlogs.length,
+        isSaved: false
+      });
+    } else {
+      user.savedBlogs.push(blogId); // Save
+      await user.save();
+      return res.status(200).json({
+        message: "Saved for later",
+        savedCount: user.savedBlogs.length,
+        savedBlogs:[{_id:blogId}],
+        isSaved: true
+      });
+    }
+
+  } catch (error) {
+    console.error("Error in toggleSaveBlog:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+export const getSavedBlogs = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('savedBlogs', '-likes');
+
+    const savedBlogs = user.savedBlogs || [];
+
+    const isSaved = savedBlogs.length > 0;
+
+    res.status(200).json({
+      savedBlogs,
+      isSaved
+    });
+
+  } catch (error) {
+    console.error("Error in getSavedBlogs:", error);
+    res.status(500).json({ message: "Failed to fetch saved blogs" });
+  }
+};
+
+export const deleteSavedBlog = async (req, res) => {
+  try {
+    const { id: blogId } = req.params;
+    const userId = req.user._id;
+
+    const result = await User.updateOne(
+      { _id: userId },
+      { $pull: { savedBlogs: blogId } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ message: "Blog not found in saved list" });
+    }
+
+    res.status(200).json({ message: "Blog removed from saved list", isSaved: false });
+
+  } catch (error) {
+    console.error("Error in deleteSavedBlog:", error);
+    res.status(500).json({ message: "Failed to remove saved blog" });
   }
 };

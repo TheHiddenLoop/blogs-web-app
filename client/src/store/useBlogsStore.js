@@ -5,6 +5,8 @@ import {
   isLikeAtom,
   likeAtom,
   loadingAtom,
+  saveBlogAtom,
+  readBlogAtom
 } from "../atom/atom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import toast from "react-hot-toast";
@@ -15,6 +17,8 @@ export function useBlogsStore() {
   const setComment = useSetRecoilState(commentAtom);
   const setLike = useSetRecoilState(likeAtom);
   const setIsLike = useSetRecoilState(isLikeAtom);
+  const setSaveBlog = useSetRecoilState(saveBlogAtom);
+  const serReadBlog=useSetRecoilState(readBlogAtom);
 
   const publishBlogs = async (formData) => {
     try {
@@ -27,6 +31,24 @@ export function useBlogsStore() {
       toast.error(err.response?.data?.message || "Blog publish failed");
       console.error(err);
       throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateBlog = async (id, updatedData) => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.put(`/blogs/update/${id}`, updatedData);
+      toast.success(res.data.message);
+
+      setBlog((prev) =>
+        prev.map((blog) => (blog._id === id ? { ...blog, ...updatedData } : blog))
+      );
+      return true;
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Updating failed");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -50,7 +72,7 @@ export function useBlogsStore() {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/blogs/readpost/${id}`);
-      setBlog(res.data.blog);
+      serReadBlog(res.data.blog);
 
       return res.data.blogs;
     } catch (err) {
@@ -83,7 +105,8 @@ export function useBlogsStore() {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/blogs/userblogs");
-      setBlog(res.data.blogs);
+      //setBlog(res.data.blogs);
+      setBlog(Array.isArray(res.data.blogs) ? res.data.blogs : []);
     } catch (err) {
       toast.error(err.response?.data?.message || "Fetching blogs failed");
       console.error(err);
@@ -97,7 +120,6 @@ export function useBlogsStore() {
     try {
       const res = await axiosInstance.delete("/blogs/deleteblogs/" + id);
 
-      // UI se turant hatao
       setBlog((prev) => prev.filter((blog) => blog._id !== id));
 
       toast.success(res.data.message);
@@ -135,7 +157,6 @@ export function useBlogsStore() {
   const likeBlogs = async (id) => {
     try {
       const res = await axiosInstance.post(`/blogs/likeblog/${id}`);
-      console.log(res.data);
       setLike(res.data.likesCount);
       setIsLike(res.data.isLiked);
     } catch (err) {
@@ -149,8 +170,39 @@ export function useBlogsStore() {
       const res = await axiosInstance.get(`/blogs/likes-status/${id}`);
       setLike(res.data.likesCount);
       setIsLike(res.data.isLiked);
-      
+
     } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const saveBlogs = async (id) => {
+    try {
+      const res = await axiosInstance.put(`/blogs/${id}/save`);
+      setSaveBlog(res.data);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const allSavedBlogs = async () => {
+    try {
+      const res = await axiosInstance.get(`/blogs/saved/blogs`);
+      setSaveBlog(res.data);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const deleteSavedBlogs = async (id) => {
+    try {
+      const res = await axiosInstance.delete(`/blogs/delete/${id}/save`);
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Deleting saved blogs failed");
       console.error(err);
       throw err;
     }
@@ -166,6 +218,10 @@ export function useBlogsStore() {
     sendComments,
     fetchComment,
     likeBlogs,
-    allLike
+    allLike,
+    saveBlogs,
+    allSavedBlogs,
+    deleteSavedBlogs,
+    updateBlog
   };
 }

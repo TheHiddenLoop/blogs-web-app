@@ -25,7 +25,7 @@ export function Home() {
 
 
   return (
-    <div className="p-4 md:px-[10%] py-8 h-full">
+    <div className="p-4 md:px-[3%] py-8 h-full">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold mb-4">Latest Posts</h1>
 
@@ -50,7 +50,7 @@ export function Home() {
           ))}
         </div>
       </div>
-      <div className="flex justify-center items-center py-9">
+      <div className="flex justify-center items-center py-2">
         {loader && <Loader size={30} className={`animate-spin transition-opacity duration-300 ease-in-out ${loader ? 'opacity-100' : 'opacity-0'}`} />}
       </div>
 

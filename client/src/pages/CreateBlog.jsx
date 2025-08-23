@@ -66,7 +66,7 @@ export function CreateBlog() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:px-[10%] bg-white text-gray-800 mx-auto p-4 gap-8 min-h-[calc(100vh-69px)]">
+    <div className="flex flex-col md:flex-row md:px-[3%] text-gray-800 mx-auto p-4 gap-8 h-auto md:min-h-[calc(100vh-69px)]">
       <form onSubmit={handleSubmit} className="flex-1 space-y-4">
         <h1 className="text-2xl font-semibold">Create your blogs</h1>
 

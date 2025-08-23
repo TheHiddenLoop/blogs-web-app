@@ -1,49 +1,51 @@
-import { Bell, Menu, Search, PenSquare, ChevronDown, ChevronUp, LogOut, User2 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { useAuthStore } from "../store/useAuthStore";
-import { authUserState } from "../atom/checkAuth";
+"use client"
+
+import { Bell, Search, PenSquare, ChevronDown, ChevronUp, LogOut, User2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Link } from "react-router-dom"
+import { useRecoilValue } from "recoil"
+import { useAuthStore } from "../store/useAuthStore"
+import { authUserState } from "../atom/checkAuth"
 import { useBlogsStore } from "../store/useBlogsStore"
-import { userDataAtom } from "../atom/atom";
+import { userDataAtom } from "../atom/atom"
 
 export default function Navbar() {
-  const [input, setInput] = useState('');
-  const authUser = useRecoilValue(authUserState);
-  const [visible, setVisible] = useState(false);
-  const data = useRecoilValue(userDataAtom);
+  const [input, setInput] = useState("")
+  const authUser = useRecoilValue(authUserState)
+  const [visible, setVisible] = useState(false)
+  const data = useRecoilValue(userDataAtom)
   const { logout } = useAuthStore();
 
-  const { filterBlogs } = useBlogsStore();
+  const { filterBlogs } = useBlogsStore()
 
   function handleChange(e) {
-    const value = e.target.value;
-    let type="search";
-    setInput(value);
-    filterBlogs(type, value);
+    const value = e.target.value
+    const type = "search"
+    setInput(value)
+    filterBlogs(type, value)
   }
 
-  const modalRef = useRef(null);
+  const modalRef = useRef(null)
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setVisible(false); 
+        setVisible(false)
       }
     }
 
     if (visible) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [visible]);
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [visible])
 
   return (
-    <header className="px-4 sm:px-6 lg:px-10 py-4 border-b bg-white shadow-sm relative">
-   {/* </header><header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-10 py-4 border-b bg-white shadow-sm"> */}
+    <header className="px-4 sm:px-6 lg:px-10 py-3 border-b bg-white shadow-sm relative">
+      {/* </header><header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-10 py-4 border-b bg-white shadow-sm"> */}
       <div className="flex justify-between items-center gap-6">
         <div className="flex items-center gap-4 select-none">
           <Link to={"/"}>
@@ -58,7 +60,7 @@ export default function Navbar() {
 
         {authUser && (
           <>
-            <div className="hidden sm:flex items-center bg-gray-100 px-3 py-1 border-2 rounded-md w-72 focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none" >
+            <div className="hidden sm:flex items-center bg-gray-100 px-3 py-1 border-2 rounded-md w-72 focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none">
               <Search className="w-4 h-4 text-gray-500 mr-2" />
               <input
                 type="text"
@@ -70,12 +72,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Bell className="w-5 h-5 text-gray-600 cursor-pointer hover:text-black" />
-
-              <div
-                
-                className="flex items-center gap-1 cursor-pointer select-none"
-              >
+              <div className="flex items-center gap-1 cursor-pointer select-none">
                 <div className="w-8 h-8 bg-gray-300 rounded-full border-2 border-blue-700 overflow-hidden">
                   <img
                     src={data.profilepic?.trim() ? data.profilepic : "images/user.png"}
@@ -83,17 +80,23 @@ export default function Navbar() {
                     className="h-full w-full object-cover"
                   />
                 </div>
-                {visible ? <ChevronUp onClick={() => setVisible(!visible)}/> : <ChevronDown onClick={() => setVisible(!visible)}/>}
+                {visible ? (
+                  <ChevronUp onClick={() => setVisible(!visible)} />
+                ) : (
+                  <ChevronDown onClick={() => setVisible(!visible)} />
+                )}
               </div>
             </div>
 
             {visible && (
               <div className="absolute top-[69px] right-2 bg-white shadow-xl rounded-xl py-3 px-2 w-48 animate-fadeIn z-50">
                 <ul className="flex flex-col" ref={modalRef}>
-                  <li className="group flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-blue-500 hover:text-white transition-all duration-200 cursor-pointer">
-                    <User2 className="text-blue-600 group-hover:text-white" />
-                    <Link to={"/setting"}>Profile</Link>
-                  </li>
+                  <Link to={"/setting"}>
+                    <li className="group flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-blue-500 hover:text-white transition-all duration-200 cursor-pointer">
+                      <User2 className="text-blue-600 group-hover:text-white" />
+                      Profile
+                    </li>
+                  </Link>
                   <li
                     onClick={() => logout()}
                     className="group flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-200 cursor-pointer"
@@ -108,5 +111,5 @@ export default function Navbar() {
         )}
       </div>
     </header>
-  );
+  )
 }
