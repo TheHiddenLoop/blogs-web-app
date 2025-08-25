@@ -1,8 +1,12 @@
 import User from "../model/userDb.js";
-import { userToken } from "../lib/utils.js"
-import bcrypt from "bcrypt"
-import { sendOTPEmail } from "../lib/email.js"
-import { otpVerificationTemplate, passwordResetSuccessTemplate, resetPasswordTemplate } from "../lib/EmailTemplets.js";
+import { userToken } from "../lib/utils.js";
+import bcrypt from "bcrypt";
+import { sendOTPEmail } from "../lib/email.js";
+import {
+  otpVerificationTemplate,
+  passwordResetSuccessTemplate,
+  resetPasswordTemplate,
+} from "../lib/EmailTemplets.js";
 import { cloudinary } from "../lib/cloudinary.js";
 
 const SALT_ROUNDS = 10;
@@ -37,7 +41,11 @@ export const signup = async (req, res) => {
 
       const otpContent = otpVerificationTemplate(otp);
 
-      await sendOTPEmail(email, "Your One-Time Password (OTP) for Verification", otpContent);
+      await sendOTPEmail(
+        email,
+        "Your One-Time Password (OTP) for Verification",
+        otpContent
+      );
 
       return res.status(201).json({
         success: true,
@@ -46,7 +54,7 @@ export const signup = async (req, res) => {
           _id: newUser._id,
           name: newUser.name,
           email: newUser.email,
-          profilepic: newUser.profilepic
+          profilepic: newUser.profilepic,
         },
       });
     }
@@ -67,8 +75,7 @@ export const signup = async (req, res) => {
           _id: existingUser._id,
           name: existingUser.name,
           email: existingUser.email,
-          profilepic: existingUser.profilepic
-
+          profilepic: existingUser.profilepic,
         },
       });
     }
@@ -77,7 +84,6 @@ export const signup = async (req, res) => {
       success: false,
       message: "User already exists and is verified. Please sign in.",
     });
-
   } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({
@@ -87,9 +93,6 @@ export const signup = async (req, res) => {
     });
   }
 };
-
-
-
 
 export const login = async (req, res) => {
   try {
@@ -131,17 +134,17 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `Welcome back, ${user.name.charAt(0).toUpperCase() + user.name.slice(1)}!`,
+      message: `Welcome back, ${
+        user.name.charAt(0).toUpperCase() + user.name.slice(1)
+      }!`,
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         isVerified: user.isVerified,
-        profilepic: user.profilepic
-
+        profilepic: user.profilepic,
       },
     });
-
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({
@@ -187,7 +190,7 @@ export const verifyOtp = async (req, res) => {
     user.otpExpires = null;
     await user.save();
 
-    userToken(user._id, res);//for token verification
+    userToken(user._id, res); //for token verification
 
     return res.status(200).json({
       success: true,
@@ -199,7 +202,6 @@ export const verifyOtp = async (req, res) => {
         email: user.email,
       },
     });
-
   } catch (error) {
     console.error("OTP verification error:", error);
     return res.status(500).json({
@@ -210,8 +212,6 @@ export const verifyOtp = async (req, res) => {
   }
 };
 
-
-
 export const checkAuth = (req, res) => {
   try {
     res.status(200).json(req.user);
@@ -220,8 +220,6 @@ export const checkAuth = (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 const generateToken2 = () => {
   return [...Array(30)].map(() => Math.random().toString(36)[2]).join("");
@@ -251,16 +249,19 @@ export const requestPasswordReset = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
     console.log(resetLink);
 
-    await sendOTPEmail(user.email, "Reset Your Password – Action Required", resetPasswordTemplate(resetLink))
+    await sendOTPEmail(
+      user.email,
+      "Reset Your Password – Action Required",
+      resetPasswordTemplate(resetLink)
+    );
 
     return res.status(200).json({
       success: true,
-      message: "Password reset link sent to your email"
+      message: "Password reset link sent to your email",
     });
-
   } catch (error) {
     console.error("Request password link error:", error);
     return res.status(500).json({
@@ -269,7 +270,7 @@ export const requestPasswordReset = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 export const resetPassword = async (req, res) => {
   try {
@@ -284,9 +285,8 @@ export const resetPassword = async (req, res) => {
 
     const user = await User.findOne({
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }
-    })
-
+      resetPasswordExpires: { $gt: Date.now() },
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -300,15 +300,16 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpires = null;
     await user.save();
 
-
-
-    await sendOTPEmail(user.email, "Your Password Has Been Successfully Reset", passwordResetSuccessTemplate())
+    await sendOTPEmail(
+      user.email,
+      "Your Password Has Been Successfully Reset",
+      passwordResetSuccessTemplate()
+    );
 
     return res.status(200).json({
       success: true,
-      message: "Password reset successful"
+      message: "Password reset successful",
     });
-
   } catch (error) {
     console.error("Request password link error:", error);
     return res.status(500).json({
@@ -317,22 +318,34 @@ export const resetPassword = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+    });
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.error('Logout error:', error.message);
-    res.status(500).json({ message: 'Server error during logout' });
+    console.error("Logout error:", error.message);
+    res.status(500).json({ message: "Server error during logout" });
   }
 };
 
-
 export const updateProfile = async (req, res) => {
   try {
-    const { profilepic, name, about, location, facebook, twitter, linkedin, instagram } = req.body;
+    const {
+      profilepic,
+      name,
+      about,
+      location,
+      facebook,
+      twitter,
+      linkedin,
+      instagram,
+    } = req.body;
     const userId = req.user._id;
 
     const updateData = {};
@@ -344,30 +357,29 @@ export const updateProfile = async (req, res) => {
 
     const allowedFields = { name, about, location };
     for (const key in allowedFields) {
-      if (allowedFields[key] !== undefined && allowedFields[key] !=="") {
+      if (allowedFields[key] !== undefined && allowedFields[key] !== "") {
         updateData[key] = allowedFields[key];
       }
     }
 
-
     const linksFields = { facebook, instagram, twitter, linkedin };
     for (const key in linksFields) {
-        updateData[key] = linksFields[key];
+      updateData[key] = linksFields[key];
     }
-
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: "No update data provided" });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    });
 
     res.status(200).json({
       success: true,
       message: "Profile information updated",
       updatedData: updatedUser,
     });
-
   } catch (error) {
     console.error("Profile update error:", error.message);
     res.status(500).json({ message: "Server error during profile update" });
